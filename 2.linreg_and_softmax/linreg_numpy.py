@@ -2,13 +2,14 @@
 # -*-coding: utf-8 -*-
 
 """
-unction: generate data for linear model which has 10000 sample, draw a figure with
-        the relationship between x and y by sample 1000 data. Finally, use nmpy to
+function: generate data for linear model which has 10000 sample, draw a figure with
+        the relationship between x and y by sample 1000 data. Finally, use numpy to
         train the linear model by mini-batch gradient descent algorithm.
 params: w = [2, -3.4]
 params: b = [4.2]
 """
 import sys
+
 sys.path.append("../d2l_func/")
 from utils import *
 import numpy as np
@@ -22,12 +23,12 @@ warnings.filterwarnings("ignore")
 # data shape
 input_num = 10000
 # weight and bias
-w = np.array([2, -3.4])
-b = np.array([4.2])
+true_w = np.array([2, -3.4])
+true_b = np.array([4.2])
 # x / label / error
-x = np.random.normal(loc=0, scale=1, size=(input_num, len(w)))
+x = np.random.normal(loc=0, scale=1, size=(input_num, len(true_w)))
 error = np.random.normal(loc=0, scale=0.01, size=input_num)
-y = x @ w + b + error
+y = x @ true_w + true_b + error
 
 """draw a figure with the relationship between x and y by sample 1000 data"""
 # set figure format
@@ -46,5 +47,5 @@ params = {
 }
 model = train(**params)
 
-print(f"w before update is {w}, w after update is {model.w}")
-print(f"b before update is {b}, b after update is {model.b}")
+print(f"w before update is {true_w}, w after update is {model.w}")
+print(f"b before update is {true_b}, b after update is {model.b}")
