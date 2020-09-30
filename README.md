@@ -7,4 +7,4 @@
 2. Linear model 和 softmax回归
 	- 实现linear model的numpy版/进度条的实现（见sqdm）/小批量划分数据集等通用函数
 	- 实现linear model的正规方程解法
-	- linear model的Pytorch从零实现
+	- linear model的Pytorch从零实现和简洁实现

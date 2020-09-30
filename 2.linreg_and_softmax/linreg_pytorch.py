@@ -51,7 +51,7 @@ input_num = 10000
 true_w = torch.tensor([2, -3.4])
 true_b = torch.tensor([4.2])
 x = torch.normal(mean=0, std=1, size=(input_num, len(true_w)))
-error = torch.normal(mean=0, std=0.01, size=(1, ))
+error = torch.normal(mean=0, std=0.01, size=(input_num, ))
 y = torch.mv(x, true_w) + true_b + error
 
 """training"""
