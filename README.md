@@ -8,3 +8,5 @@
 	- 实现linear model的numpy版/进度条的实现（见sqdm）/小批量划分数据集等通用函数
 	- 实现linear model的正规方程解法
 	- linear model的Pytorch从零实现和简洁实现
+    - linear model的L2正则化（大多使用L2来实现权重衰减）实现（numpy/pytorch版），对比pytorch的权重衰减方法和我们熟知的L2实现方法的异同
+    
