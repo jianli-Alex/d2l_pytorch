@@ -50,3 +50,20 @@ def data_iter(batch_size, X, y):
     for i in range(0, data_num, batch_size):
         up_index = np.minimum(i + batch_size, data_num)
         yield X[i:up_index], y[i:up_index]
+
+
+def bootstrap(x, y):
+    """
+    function: realize bootstrap by numpy
+    """
+    data_num = len(y)
+    # extract train dataset index and test dataset index
+    batch_index = np.random.choice(data_num, size=data_num, replace=True)
+    out_index = np.array(list(set(range(data_num)).difference(set(batch_index))))
+
+    # generate train dataset
+    xtrain, ytrain = x[batch_index], y[batch_index]
+    # generate test dataset
+    xtest, ytest = x[out_index], y[out_index]
+
+    return xtrain, ytrain, xtest, ytest

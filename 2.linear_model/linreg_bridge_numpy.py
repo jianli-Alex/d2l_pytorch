@@ -55,7 +55,7 @@ def train(x, y, model, epoch_num, batch_size, alpha, weight_decay):
         for xdata, ydata in data_iter(batch_size, x, y):
             model.fit(xdata, ydata)
             mse = model.score(xdata, ydata)
-            process_bar.show_process(len(ydata), batch_size, round(mse, 5))
+            process_bar.show_process(len(ydata), batch_size, mse)
         print("\n")
     return model
 

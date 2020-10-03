@@ -19,6 +19,7 @@ from train import *
 import warnings
 warnings.filterwarnings("ignore")
 
+
 """use normal distribution generate x and error item"""
 # data shape
 input_num = 10000
