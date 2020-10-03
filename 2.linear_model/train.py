@@ -18,7 +18,7 @@ def train(X, y, model, epoch_num, batch_size):
         print(f"Epoch [{epoch + 1}/{epoch_num}]")
         for xdata, ydata in data_iter(batch_size, X, y):
             model.fit(xdata, ydata)
-            mse = np.round(model.score(xdata, ydata), 5)
+            mse = model.score(xdata, ydata)
             process_bar.show_process(len(y), batch_size, mse)
         print("\n")
 

@@ -30,7 +30,7 @@ def sgd(params, lr):
 def train(epoch_num, net, loss, batch_size, lr):
     """train function"""
     for epoch in range(epoch_num):
-        print(f"Epoch [{epoch}/{epoch_num}]")
+        print(f"Epoch [{epoch+1}/{epoch_num}]")
         for xdata, ydata in data_iter(batch_size, x, y):
             l = loss(net(xdata, w, b), ydata)
             l.backward()

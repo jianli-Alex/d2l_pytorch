@@ -54,7 +54,7 @@ b = torch.zeros(1, requires_grad=True)
 process_bar = sqdm()
 
 for epoch in range(params["epoch_num"]):
-    print(f"Epoch [{epoch}/{params['epoch_num']}]")
+    print(f"Epoch [{epoch+1}/{params['epoch_num']}]")
     for xdata, ydata in data_iter(params["batch_size"], x, y):
         y_pred = linreg(xdata, w, b)
         l = squared_loss(y_pred, ydata.reshape(y_pred.shape))
@@ -65,7 +65,7 @@ for epoch in range(params["epoch_num"]):
         _ = w.grad.data.zero_()
         _ = b.grad.data.zero_()
 
-        process_bar.show_process(input_num, params["batch_size"], round(l.item(), 5))
+        process_bar.show_process(input_num, params["batch_size"], l.item())
     print("\n")
 
 print(f"w before update is {true_w}, w after update is {w}")

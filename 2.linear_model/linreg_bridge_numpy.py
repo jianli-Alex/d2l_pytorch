@@ -51,11 +51,11 @@ class LinearBridge(LinearModel):
 def train(x, y, model, epoch_num, batch_size, alpha, weight_decay):
     model = model(alpha=alpha, weight_decay=weight_decay)
     for epoch in range(epoch_num):
-        print(f"Epoch [{epoch}/{epoch_num}]")
+        print(f"Epoch [{epoch+1}/{epoch_num}]")
         for xdata, ydata in data_iter(batch_size, x, y):
             model.fit(xdata, ydata)
             mse = model.score(xdata, ydata)
-            process_bar.show_process(len(ydata), batch_size, mse)
+            process_bar.show_process(len(y), batch_size, mse)
         print("\n")
     return model
 

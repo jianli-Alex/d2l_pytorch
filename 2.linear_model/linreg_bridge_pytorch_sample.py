@@ -59,7 +59,7 @@ optimizer = torch.optim.SGD(net.parameters(), lr=params["lr"],
 # training bar
 process_bar = sqdm()
 for epoch in range(params["epoch_num"]):
-    print(f"Epoch [{epoch}/{params['epoch_num']}]")
+    print(f"Epoch [{epoch+1}/{params['epoch_num']}]")
     for xdata, ydata in data_iter:
         y_pred = net(xdata)
         l = loss(y_pred, ydata.reshape(y_pred.shape))
@@ -69,7 +69,7 @@ for epoch in range(params["epoch_num"]):
         # update
         optimizer.step()
         process_bar.show_process(params["input_num"],
-                                 params["batch_size"], round(l.item(), 5))
+                                 params["batch_size"], l.item())
     print("\n")
 print(f"w before update is {true_w}, w after update is {net.layer[0].weight}")
 print(f"b before update is {true_b}, b after update is {net.layer[0].bias}")

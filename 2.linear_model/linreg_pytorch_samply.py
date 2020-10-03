@@ -74,7 +74,7 @@ for epoch in range(params["epoch_num"]):
 
         # train bar
         process_bar.show_process(params["input_num"],
-                                 params["batch_size"], round(l.item(), 5))
+                                 params["batch_size"], l.item())
     print("\n")
 print(f"w before update is {true_w}, w after update is {net.layer[0].weight}")
 print(f"b before update is {true_b}, b after update is {net.layer[0].bias}")
