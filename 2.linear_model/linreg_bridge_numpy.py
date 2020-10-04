@@ -15,7 +15,7 @@ sys.path.append("../d2l_func/")
 import numpy as np
 from sqdm import sqdm
 from linear_model import LinearModel
-from utils import data_iter
+from data_prepare import data_iter
 
 
 class LinearBridge(LinearModel):

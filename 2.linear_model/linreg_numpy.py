@@ -11,7 +11,7 @@ params: b = [4.2]
 import sys
 
 sys.path.append("../d2l_func/")
-from utils import *
+from draw import *
 import numpy as np
 from twin_fig import draw_twin_fig
 from linear_model import LinearModel

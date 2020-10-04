@@ -4,8 +4,9 @@
 import sys
 sys.path.append("../d2l_func/")
 import torch
+import numpy as np
 from sqdm import sqdm
-from utils import *
+from data_prepare import data_iter
 
 
 def linreg(X, w, b):

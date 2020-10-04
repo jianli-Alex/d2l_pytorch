@@ -9,7 +9,7 @@ import sys
 sys.path.append("../d2l_func/")
 import torch
 from sqdm import sqdm
-from utils import data_iter
+from data_prepare import data_iter
 
 
 def squared_loss(y_pred, y):

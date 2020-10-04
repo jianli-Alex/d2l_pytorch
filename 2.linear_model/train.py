@@ -4,11 +4,8 @@
 import sys
 
 sys.path.append("../d2l_func/")
-from utils import *
+from data_prepare import data_iter
 from sqdm import sqdm
-import pandas as pd
-pd.set_option('display.max_rows',None)#取消行限制
-pd.set_option('display.width',1000)#增加每行的宽度
 
 process_bar = sqdm()
 
