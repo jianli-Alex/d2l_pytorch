@@ -7,9 +7,9 @@ from sqdm import sqdm
 from optim import sgd
 
 
-def train_pytorch(data_num, epoch_num, model, loss, train_iter,
+def train_pytorch(data_num, epoch_num, model, loss, train_iter, batch_size,
                   lr=0.01, weight_decay=0, params=None, optimizer=None,
-                  test_iter=None, evaluate=None)
+                  test_iter=None, evaluate=None):
     """
     function: training in pytorch
     params data_num: the number of sample in train set
@@ -32,7 +32,7 @@ def train_pytorch(data_num, epoch_num, model, loss, train_iter,
 
     for epoch in range(epoch_num):
         print(f"Epoch [{epoch+1}/{epoch_num}]")
-        count, mean_loss, mean_score = 1, 0, 0
+        count, mean_loss, mean_score = 1., 0., 0.
         for x, y in train_iter:
             # train
             train_pred = model(x)
@@ -65,8 +65,10 @@ def train_pytorch(data_num, epoch_num, model, loss, train_iter,
                 test_pred = model(test_data)
                 test_loss = loss(test_pred, test_label)
                 test_score = evaluate(test_data, test_label)
-
+            # training bar
             process_bar.show_process(data_num, batch_size=batch_size,
-                                     train_loss=train_loss, train_score=train_score,
-                                     test_loss=test_loss, test_score=test_score)
+                                     train_loss=mean_loss.item(),
+                                     train_score=mean_score,
+                                     test_loss=test_loss.item(),
+                                     test_score=test_score)
         print("\n")

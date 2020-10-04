@@ -6,7 +6,7 @@ def squared_loss(y_pred, y):
     return ((y_pred - y)**2).sum()
 
 
-def sgd2(params, batch_size, lr, weight_decay):
+def sgd2(params, batch_size, lr, weight_decay=0):
     for param in params:
         # param.data = param.data - lr * (param.grad+weight_decay*param.data) / batch_size
         # pytorch practice
@@ -21,7 +21,7 @@ def square_loss(y_pred, y):
     return ((y_pred - y)**2).sum()/(2*len(y))
 
 
-def sgd(params, lr):
+def sgd(params, lr, weight_decay=0):
     """realize optimization algorithm """
     for param in params:
-        param.data -= lr * param.grad
+        param.data = param.data - lr * (param.grad + weight_decay*param.data)

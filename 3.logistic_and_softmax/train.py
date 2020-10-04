@@ -3,9 +3,8 @@
 
 import sys
 sys.path.append("../d2l_func/")
-import numpy as np
 from sqdm import sqdm
-from utils import data_iter
+from data_prepare import data_iter
 
 
 def train(data_loader, model, epoch_num, batch_size):

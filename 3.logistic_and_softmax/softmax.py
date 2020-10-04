@@ -9,7 +9,7 @@ import sys
 sys.path.append("../d2l_func/")
 import numpy as np
 from sklearn.datasets import load_iris
-from utils import data_iter, bootstrap
+from model_selection import bootstrap
 from train import *
 
 

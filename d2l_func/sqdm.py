@@ -29,11 +29,11 @@ class sqdm(object):
         if isinstance(train_loss, float):
             train_loss = "%.4f"%(train_loss)
         if isinstance(train_score, float):
-            train_score = "%.2f"%(train_score)
+            train_score = "%.3f"%(train_score)
         if isinstance(test_loss, float):
             test_loss = "%.4f"%(test_loss)
         if isinstance(test_score, float):
-            test_score = "%.2f"%(test_score)
+            test_score = "%.3f"%(test_score)
             
         # show training bar
         epoch_bar = f"{self.iter_num}/{data_num} " + "[" + ">" * num_arrow + \

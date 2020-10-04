@@ -11,3 +11,6 @@
 	- linear model的L2正则化（大多使用L2来实现权重衰减）实现（numpy/pytorch版），对比pytorch的权重衰减方法和我们熟知的L2实现方法的异同
 3. logistic and softmax model
 	- 实现logistic and softmax的numpy版
+	- 实现自助法/进度条实现改进/加载fashion_mnist等函数
+	- pytorch版softmax的从零实现和简洁实现
+	- 实现通用的pytorch训练函数
