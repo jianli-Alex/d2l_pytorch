@@ -45,36 +45,37 @@ class PSoftmaxModel(object):
         return acc
 
 
-# define model
-model = PSoftmaxModel(fea_num=28*28, cate_num=10)
-# download fashion_mnist dataset
-mnist_train, mnist_test = download_data_fashion_mnist()
+if __name__ == "__main__":
+    # define model
+    model = PSoftmaxModel(fea_num=28*28, cate_num=10)
+    # download fashion_mnist dataset
+    mnist_train, mnist_test = download_data_fashion_mnist()
 
-params = {
-    "model": model.fit,
-    "loss": model.entropy_loss,
-    "batch_size": 512,
-    "data_num": len(mnist_train),
-    "epoch_num": 50,
-    "lr": 0.02,
-    "params": (model.w, model.b),
-    "train_iter": None,
-    "test_iter": Data.DataLoader(mnist_test,
-                                 batch_size=len(mnist_test), shuffle=True),
-    "evaluate": model.score,
-}
+    params = {
+        "model": model.fit,
+        "loss": model.entropy_loss,
+        "batch_size": 512,
+        "data_num": len(mnist_train),
+        "epoch_num": 50,
+        "lr": 0.02,
+        "params": (model.w, model.b),
+        "train_iter": None,
+        "test_iter": Data.DataLoader(mnist_test,
+                                     batch_size=len(mnist_test), shuffle=True),
+        "evaluate": model.score,
+    }
 
-# load fashion mnist
-train_iter, test_iter = load_data_fashion_mnist(params["batch_size"],
-                                                num_workers=8)
-params["train_iter"] = train_iter
+    # load fashion mnist
+    train_iter, test_iter = load_data_fashion_mnist(params["batch_size"],
+                                                    num_workers=8)
+    params["train_iter"] = train_iter
 
-# train
-train_pytorch(**params)
+    # train
+    train_pytorch(**params)
 
-# test
-x, y = iter(test_iter).next()
-true_label = get_fashion_mnist_label(y)
-pred_label = get_fashion_mnist_label(model.predict(x))
-label = [true + "\n" + pred for true, pred in zip(true_label, pred_label)]
-show_fashion_mnist(x[:10], label[:10])
+    # test
+    x, y = iter(test_iter).next()
+    true_label = get_fashion_mnist_label(y)
+    pred_label = get_fashion_mnist_label(model.predict(x))
+    label = [true + "\n" + pred for true, pred in zip(true_label, pred_label)]
+    show_fashion_mnist(x[:10], label[:10])

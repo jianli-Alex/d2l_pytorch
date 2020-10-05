@@ -43,46 +43,47 @@ class PSoftmaxModel2(nn.Module):
         return (torch.argmax(y_pred, dim=1) == y).sum().item() / len(y)
 
 
-# define model
-model = PSoftmaxModel2(fea_num=28*28, cate_num=10)
-# initialize weight and bias
-init.normal_(model.layer[1].weight, 0, 0.01)
-init.constant_(model.layer[1].bias, 0)
-# loss function
-loss = nn.CrossEntropyLoss()
-# download fashion_mnist dataset
-mnist_train, mnist_test = download_data_fashion_mnist()
+if __name__ == "__main__":
+    # define model
+    model = PSoftmaxModel2(fea_num=28*28, cate_num=10)
+    # initialize weight and bias
+    init.normal_(model.layer[1].weight, 0, 0.01)
+    init.constant_(model.layer[1].bias, 0)
+    # loss function
+    loss = nn.CrossEntropyLoss()
+    # download fashion_mnist dataset
+    mnist_train, mnist_test = download_data_fashion_mnist()
 
-params = {
-    "model": model,
-    "loss": loss,
-    "batch_size": 512,
-    "data_num": len(mnist_train),
-    "epoch_num": 50,
-    "lr": 0.01,
-    "weight_decay": 0,
-    "optimizer": None,
-    "train_iter": None,
-    "test_iter": Data.DataLoader(mnist_test,
-                                 batch_size=len(mnist_test), shuffle=True),
-    "evaluate": model.score,
-}
+    params = {
+        "model": model,
+        "loss": loss,
+        "batch_size": 512,
+        "data_num": len(mnist_train),
+        "epoch_num": 50,
+        "lr": 0.01,
+        "weight_decay": 0,
+        "optimizer": None,
+        "train_iter": None,
+        "test_iter": Data.DataLoader(mnist_test,
+                                     batch_size=len(mnist_test), shuffle=True),
+        "evaluate": model.score,
+    }
 
-# optimizer
-optimizer = torch.optim.SGD(model.parameters(), lr=params["lr"], momentum=0.9,
-                            weight_decay=params["weight_decay"])
-# load fashion mnist
-train_iter, test_iter = load_data_fashion_mnist(params["batch_size"],
-                                                num_workers=8)
-params["train_iter"] = train_iter
-params["optimizer"] = optimizer
+    # optimizer
+    optimizer = torch.optim.SGD(model.parameters(), lr=params["lr"], momentum=0.9,
+                                weight_decay=params["weight_decay"])
+    # load fashion mnist
+    train_iter, test_iter = load_data_fashion_mnist(params["batch_size"],
+                                                    num_workers=8)
+    params["train_iter"] = train_iter
+    params["optimizer"] = optimizer
 
-# train
-train_pytorch(**params)
+    # train
+    train_pytorch(**params)
 
-# test
-x, y = iter(test_iter).next()
-true_label = get_fashion_mnist_label(y)
-pred_label = get_fashion_mnist_label(torch.argmax(model(x), dim=1))
-label = [true + "\n" + pred for true, pred in zip(true_label, pred_label)]
-show_fashion_mnist(x[:10], label[:10])
+    # test
+    x, y = iter(test_iter).next()
+    true_label = get_fashion_mnist_label(y)
+    pred_label = get_fashion_mnist_label(torch.argmax(model(x), dim=1))
+    label = [true + "\n" + pred for true, pred in zip(true_label, pred_label)]
+    show_fashion_mnist(x[:10], label[:10])

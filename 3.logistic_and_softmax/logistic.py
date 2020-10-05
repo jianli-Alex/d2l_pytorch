@@ -73,22 +73,23 @@ class LogisticModel(object):
         return acc
 
 
-# deal with iris_data
-iris = load_iris()
-iris_data = np.hstack((iris.data, np.expand_dims(iris.target, 1)))
-# two category
-iris_data = iris_data[iris.target < 2]
-data_loader = bootstrap(iris_data[:, :4], iris_data[:, 4])
+if __name__ == "__main__":
+    # deal with iris_data
+    iris = load_iris()
+    iris_data = np.hstack((iris.data, np.expand_dims(iris.target, 1)))
+    # two category
+    iris_data = iris_data[iris.target < 2]
+    data_loader = bootstrap(iris_data[:, :4], iris_data[:, 4])
 
-# training
-params={
-    "model": LogisticModel(alpha=0.02, weight_decay=0),
-    "epoch_num": 100,
-    "batch_size": 1,
-    "data_loader": data_loader,
-}
+    # training
+    params={
+        "model": LogisticModel(alpha=0.02, weight_decay=0),
+        "epoch_num": 100,
+        "batch_size": 1,
+        "data_loader": data_loader,
+    }
 
-model = train(**params)
-# test result
-print(model.predict(iris_data[:, :4]))
-print(model.score(iris_data[:, :4], iris_data[:, 4]))
+    model = train(**params)
+    # test result
+    print(model.predict(iris_data[:, :4]))
+    print(model.score(iris_data[:, :4], iris_data[:, 4]))

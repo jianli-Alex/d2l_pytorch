@@ -6,6 +6,7 @@ function: realize softmax classify by numpy with iris datasets
 """
 
 import sys
+
 sys.path.append("../d2l_func/")
 import numpy as np
 from sklearn.datasets import load_iris
@@ -32,7 +33,8 @@ class SoftmaxModel(object):
         """softmax(z) = exp(z)/sum(exp(z'))"""
         return np.exp(y) / np.expand_dims(np.exp(y).sum(axis=1), 1)
 
-    def entropy_loss(self, y_pred, y):
+    @staticmethod
+    def entropy_loss(y_pred, y):
         """
         loss = mean(y^T log(y_pred)), y and y_pred is a vector about probability
         in each category in a sample. Beside calculate "mean" stand for
@@ -84,31 +86,32 @@ class SoftmaxModel(object):
         return acc
 
 
-# deal with iris dataset
-iris = load_iris()
-iris_data = np.hstack((iris.data, np.expand_dims(iris.target, 1)))
-xtrain, ytrain, xtest, ytest = bootstrap(iris_data[:, :4], iris_data[:, 4])
+if __name__ == "__main__":
+    # deal with iris dataset
+    iris = load_iris()
+    iris_data = np.hstack((iris.data, np.expand_dims(iris.target, 1)))
+    xtrain, ytrain, xtest, ytest = bootstrap(iris_data[:, :4], iris_data[:, 4])
 
-# deal with label in iris data, such as (0 --> [1, 0, 0])
-label_dict = {
-    0: [1, 0, 0],
-    1: [0, 1, 0],
-    2: [0, 0, 1]
-}
-# complete labels change in iris dataset
-data = np.array(list(map(lambda x: label_dict[x], iris_data[:, 4])))
-# train and test dataset labels change
-ytrain = np.array(list(map(lambda x: label_dict[x], list(ytrain))))
-ytest = np.array(list(map(lambda x: label_dict[x], list(ytest))))
+    # deal with label in iris data, such as (0 --> [1, 0, 0])
+    label_dict = {
+        0: [1, 0, 0],
+        1: [0, 1, 0],
+        2: [0, 0, 1]
+    }
+    # complete labels change in iris dataset
+    data = np.array(list(map(lambda x: label_dict[x], iris_data[:, 4])))
+    # train and test dataset labels change
+    ytrain = np.array(list(map(lambda x: label_dict[x], list(ytrain))))
+    ytest = np.array(list(map(lambda x: label_dict[x], list(ytest))))
 
-# train
-params={
-    "model": SoftmaxModel(fea_num=4, cate_num=3, alpha=0.01, weight_decay=0),
-    "epoch_num": 100,
-    "batch_size": 1,
-    "data_loader": (xtrain, ytrain, xtest, ytest)
-}
-model = train(**params)
-# test
-print(model.predict(iris_data[:, :4]))
-print(model.score(iris_data[:, :4], data))
+    # train
+    params = {
+        "model": SoftmaxModel(fea_num=4, cate_num=3, alpha=0.01, weight_decay=0),
+        "epoch_num": 100,
+        "batch_size": 1,
+        "data_loader": (xtrain, ytrain, xtest, ytest)
+    }
+    model = train(**params)
+    # test
+    print(model.predict(iris_data[:, :4]))
+    print(model.score(iris_data[:, :4], data))
