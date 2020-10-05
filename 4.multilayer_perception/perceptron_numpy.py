@@ -10,7 +10,7 @@ from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 
 
-class PerceptionModel():
+class PerceptronModel(object):
     def __init__(self, alpha=0.001, max_iter_num=1000):
         self.w = None
         self.b = 0
@@ -70,7 +70,7 @@ if __name__ == "__main__":
                                                     iris_data[:, 4])
 
     # define model and fit
-    model = PerceptionModel()
+    model = PerceptronModel()
     model.fit(xtrain, ytrain)
     # predict
     result = model.predict(xtest)

@@ -8,12 +8,12 @@ one vs rest will generate c classier, "c" is the number of category.
 """
 
 import numpy as np
-from perception_numpy import PerceptionModel
+from perceptron_numpy import PerceptronModel
 from sklearn.model_selection import train_test_split
 from sklearn.datasets import load_iris
 
 
-class PerceptionOvs(object):
+class PerceptronOvr(object):
     def __init__(self, alpha=0.001, max_iter_num=1000):
         self.w = None
         self.b = None
@@ -22,7 +22,7 @@ class PerceptionOvs(object):
         self.max_iter_num = max_iter_num
 
     def model(self):
-        ppn = PerceptionModel(alpha=self.alpha, max_iter_num=self.max_iter_num)
+        ppn = PerceptronModel(alpha=self.alpha, max_iter_num=self.max_iter_num)
         return ppn
 
     def linreg(self, X):
@@ -60,8 +60,8 @@ class PerceptionOvs(object):
 
     def score(self, X, y):
         y_pred = self.predict(X)
-        score = (y_pred == y).sum() / len(y)
-        return score
+        acc = (y_pred == y).sum() / len(y)
+        return acc
 
 
 if __name__ == "__main__":
@@ -70,7 +70,7 @@ if __name__ == "__main__":
     xtrain, xtest, ytrain, ytest = train_test_split(iris.data, iris.target)
 
     # define model
-    model = PerceptionOvs()
+    model = PerceptronOvr()
     model.fit(xtrain, ytrain)
 
     # result

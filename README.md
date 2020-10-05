@@ -14,3 +14,8 @@
 	- 实现自助法/进度条实现改进/加载fashion_mnist等函数
 	- pytorch版softmax的从零实现和简洁实现
 	- 实现通用的pytorch训练函数
+4. perceptron and multiple perceptron
+	- 实现感知机的numpy版/one vs rest/one vs one策略的多分类情况
+	- pytorch版的mlp从零实现和简单实现
+	- 实现各种softmax/tanh/relu等激活函数
+

@@ -7,6 +7,7 @@ import torchvision
 import torchvision.transforms as transforms
 import torch.utils.data as Data
 
+
 def data_iter(batch_size, X, y):
     """
     function: cut X and y in mini-batch data depend on batch_size
@@ -56,3 +57,4 @@ def load_data_fashion_mnist(batch_size, num_workers=4, download_path="../data"):
     test_iter = Data.DataLoader(mnist_test, batch_size=batch_size,
                                 num_workers=num_workers, shuffle=True)
     return train_iter, test_iter
+
