@@ -19,3 +19,9 @@
 	- pytorch版的mlp从零实现和简单实现
 	- 实现各种softmax/tanh/relu等激活函数
 	- 为通用训练函数(train_pytorch)添加画图功能，测试各种情况
+5. optimization
+	- 正常拟合/过拟合/欠拟合实验(以多项式函数拟合来做实验)
+	- 权重衰减在高维回归中的实验(包括只更新权重的权重衰减)
+	- 对权重衰减是否除以batch_size的对比实验见"2. linear model"中的"linear_bridge"相关实验
+	- 优化器自定义参数权重衰减率时不更新实验
+	- dropout的两种方式实现
