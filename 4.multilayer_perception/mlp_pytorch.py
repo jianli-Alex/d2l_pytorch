@@ -64,7 +64,7 @@ if __name__ == "__main__":
     params = {
         "model": model.predict_prob,
         "loss": model.entropy_loss,
-        "epoch_num": 50,
+        "epoch_num": 3,
         "data_num": len(mnist_train),
         "batch_size": 512,
         "lr": 0.1,
@@ -72,6 +72,8 @@ if __name__ == "__main__":
         "params": [model.w1, model.b1, model.w2, model.b2],
         "test_iter": Data.DataLoader(mnist_test, batch_size=len(mnist_test)),
         "evaluate": model.score,
+        "draw": True,
+        "draw_epoch": True,
     }
 
     train_iter, test_iter = load_data_fashion_mnist(batch_size=params["batch_size"], num_workers=8)

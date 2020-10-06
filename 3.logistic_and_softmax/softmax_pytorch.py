@@ -63,6 +63,8 @@ if __name__ == "__main__":
         "test_iter": Data.DataLoader(mnist_test,
                                      batch_size=len(mnist_test), shuffle=True),
         "evaluate": model.score,
+        "draw": True,
+        "save_fig": True,
     }
 
     # load fashion mnist

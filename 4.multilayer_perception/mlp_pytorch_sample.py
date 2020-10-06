@@ -59,13 +59,16 @@ if __name__ == "__main__":
     params = {
         "model": model,
         "loss": loss,
-        "epoch_num": 50,
+        "epoch_num": 3,
         "data_num": len(mnist_train),
         "batch_size": 512,
         "lr": 0.1,
         "weight_decay": 0,
         "test_iter": Data.DataLoader(mnist_test, batch_size=len(mnist_test)),
         "evaluate": model.score,
+        "draw": True,
+        "save_fig": True,
+        # "draw_epoch": True,
     }
 
     # optimizer
@@ -79,8 +82,9 @@ if __name__ == "__main__":
     train_pytorch(**params)
 
     # testing
+    test_iter = Data.DataLoader(mnist_test, batch_size=10)
     x, y = iter(test_iter).next()
     true_label = get_fashion_mnist_label(y)
     pred_label = get_fashion_mnist_label(model(x).argmax(dim=1))
     label = [true + "\n" + pred for true, pred in zip(true_label, pred_label)]
-    show_fashion_mnist(x[:10], label[:10])
+    show_fashion_mnist(x, label)
