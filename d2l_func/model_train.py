@@ -13,12 +13,14 @@ sys.path.append("../d2l_func/")
 from sqdm import sqdm
 from optim import sgd
 from draw import set_fig_display
+from decorate import cal_time
 
 
+@cal_time
 def train_experiment(data_num, epoch_num, model, loss, train_iter, batch_size,
                      lr=0.01, weight_decay=0, params=None, optimizer=None,
-                     test_iter=None, evaluate=None, draw=False,
-                     draw_epoch=False, save_fig=False, save_path="./img/"):
+                     test_iter=None, evaluate=None, draw=False, draw_epoch=False,
+                     save_fig=False, save_path="./img/", gpu=False):
     """
     function: training in pytorch (experiment in self-define and nn.Module)
     params data_num: the number of sample in train set
@@ -36,6 +38,7 @@ def train_experiment(data_num, epoch_num, model, loss, train_iter, batch_size,
     params draw_epoch: draw with data in iteration or epoch
     params save_fig: save figure whether or not
     params save_path: the path of saving figure
+    params gpu: if want to use gpu and cuda is available, it will send tensor to gpu
     """
     # training bar
     process_bar = sqdm()
@@ -43,9 +46,11 @@ def train_experiment(data_num, epoch_num, model, loss, train_iter, batch_size,
     # test data which is used to test after train
     if test_iter is not None:
         test_data, test_label = iter(test_iter).next()
+        # if cuda available and want to use gpu
+        if torch.cuda.is_available() and gpu:
+            test_data = test_data.cuda()
+            test_label = test_label.cuda()
 
-    # init
-    test_loss = test_score = "-"
     # storage loss and score in train and test
     train_loss_list, test_loss_list = [], []
     train_score_list, test_score_list = [], []
@@ -57,6 +62,11 @@ def train_experiment(data_num, epoch_num, model, loss, train_iter, batch_size,
         count, mean_train_loss, mean_train_score = 1., 0., 0.
         mean_test_loss, mean_test_score = 0., 0.
         for x, y in train_iter:
+            # cuda available and want to use gpu
+            if torch.cuda.is_available() and gpu:
+                # send tensor from cpu to gpu
+                x = x.cuda()
+                y = y.cuda()
             # train
             train_pred = model(x)
             train_loss = loss(train_pred, y)
@@ -231,9 +241,10 @@ def train_experiment(data_num, epoch_num, model, loss, train_iter, batch_size,
         plt.show()
 
 
+@cal_time
 def train_pytorch(data_num, epoch_num, model, loss, train_iter, batch_size,
                   optimizer=None, test_iter=None, evaluate=None, draw=False,
-                  draw_epoch=False, save_fig=False, save_path="./img/"):
+                  draw_epoch=False, save_fig=False, save_path="./img/", gpu=False):
     """
     function: training in pytorch (only with nn.Module)
     params data_num: the number of sample in train set
@@ -248,6 +259,7 @@ def train_pytorch(data_num, epoch_num, model, loss, train_iter, batch_size,
     params draw_epoch: draw with data in iteration or epoch
     params save_fig: save figure whether or not
     params save_path: the path of saving figure
+    params gpu: if want to use gpu and cuda is available, it will send tensor to gpu
     """
     # training bar
     process_bar = sqdm()
@@ -255,6 +267,10 @@ def train_pytorch(data_num, epoch_num, model, loss, train_iter, batch_size,
     # test data which is used to test after train
     if test_iter is not None:
         test_data, test_label = iter(test_iter).next()
+        # if cuda available and want to use gpu
+        if torch.cuda.is_available() and gpu:
+            test_data = test_data.cuda()
+            test_label = test_label.cuda()
 
     # init
     test_loss = test_score = "-"
@@ -269,11 +285,13 @@ def train_pytorch(data_num, epoch_num, model, loss, train_iter, batch_size,
         count, mean_train_loss, mean_train_score = 1., 0., 0.
         mean_test_loss, mean_test_score = 0., 0.
         for x, y in train_iter:
-            # train
-            # model.train()
-            if torch.cuda.is_available():
+            # cuda available and want to use gpu
+            if torch.cuda.is_available() and gpu:
+                # send tensor from cpu to gpu
                 x = x.cuda()
                 y = y.cuda()
+            # train
+            # model.train()
             train_pred = model(x)
             train_loss = loss(train_pred, y)
             # calculate mean train loss
@@ -310,9 +328,6 @@ def train_pytorch(data_num, epoch_num, model, loss, train_iter, batch_size,
             if test_iter is not None:
                 # eval model, it will stop dropout and batch normalization
                 model.eval()
-                if torch.cuda.is_available():
-                    test_data = test_data.cuda()
-                    test_label = test_label.cuda()
                 test_pred = model(test_data)
                 test_loss = loss(test_pred, test_label).item()
                 mean_test_loss = ((count - 1) * mean_test_loss +
