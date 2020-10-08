@@ -18,7 +18,7 @@ import torch.nn as nn
 import torch.nn.init as init
 import torch.utils.data as Data
 sys.path.append("../d2l_func/")
-from model_train import train_pytorch
+from model_train import train_experiment
 
 
 class LinearModel(nn.Module):
@@ -73,4 +73,4 @@ params["optimizer"] = optimizer
 params["train_iter"] = train_iter
 
 # training
-train_pytorch(**params)
+train_experiment(**params)

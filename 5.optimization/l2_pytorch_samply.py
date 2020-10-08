@@ -41,25 +41,23 @@ test_iter = Data.DataLoader(test_dataset,
                             batch_size=len(test_dataset), shuffle=True)
 # loss
 loss = nn.MSELoss()
+# optimizer
+optimizer = torch.optim.SGD(model.parameters(), lr=0.01, weight_decay=2)
 
 params = {
     "model": model,
     "loss": loss,
     "epoch_num": 100,
     "batch_size": 20,
-    "lr": 0.01,
-    "weight_decay": 2,
+    "optimizer": optimizer,
     "data_num": 20,
     "test_iter": test_iter,
     "draw": True,
 }
 
-# optimizer
-optimizer = torch.optim.SGD(model.parameters(), lr=params["lr"],
-                            weight_decay=params["weight_decay"])
+# train_datas
 train_iter = Data.DataLoader(train_dataset, shuffle=True,
                              batch_size=params["batch_size"])
-params["optimizer"] = optimizer
 params["train_iter"] = train_iter
 
 # training

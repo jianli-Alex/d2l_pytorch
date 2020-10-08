@@ -11,7 +11,7 @@ import torch.nn as nn
 import torch.utils.data as Data
 from polyreg_pytorch import PolyModel
 sys.path.append("../d2l_func/")
-from model_train import train_pytorch
+from model_train import train_experiment
 
 
 # load data
@@ -50,4 +50,4 @@ params["optimizer"] = optimizer
 params["train_iter"] = train_iter
 
 # training
-train_pytorch(**params)
+train_experiment(**params)

@@ -24,4 +24,5 @@
 	- 权重衰减在高维回归中的实验(包括只更新权重的权重衰减)
 	- 对权重衰减是否除以batch_size的对比实验见"2. linear model"中的"linear_bridge"相关实验
 	- 优化器自定义参数权重衰减率时不更新实验
-	- dropout的两种方式实现
+	- dropout的两种方式实现/为网络自定义添加dropout和pytorch实验
+	- GPU实验/分割通用训练函数为(experiment和pytorch版)，增加GPU的相关支持
