@@ -4,7 +4,7 @@
 import sys
 sys.path.append("../d2l_func/")
 import torch
-from model_train import train_pytorch
+from model_train import train_experiment
 from data_prepare import download_data_fashion_mnist, load_data_fashion_mnist
 from draw import get_fashion_mnist_label, show_fashion_mnist
 import torch.utils.data as Data
@@ -73,7 +73,7 @@ if __name__ == "__main__":
     params["train_iter"] = train_iter
 
     # train
-    train_pytorch(**params)
+    train_experiment(**params)
 
     # test
     x, y = iter(test_iter).next()

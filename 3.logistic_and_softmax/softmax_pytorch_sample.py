@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.nn.init as init
 import torch.utils.data as Data
 sys.path.append("../d2l_func/")
-from model_train import train_pytorch
+from model_train import train_experiment
 from draw import get_fashion_mnist_label, show_fashion_mnist
 from data_prepare import download_data_fashion_mnist, load_data_fashion_mnist
 
@@ -80,7 +80,7 @@ if __name__ == "__main__":
     params["optimizer"] = optimizer
 
     # train
-    train_pytorch(**params)
+    train_experiment(**params)
 
     # test
     x, y = iter(test_iter).next()
