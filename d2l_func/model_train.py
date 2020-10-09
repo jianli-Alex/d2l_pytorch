@@ -325,30 +325,31 @@ def train_pytorch(data_num, epoch_num, model, loss, train_iter, batch_size,
             optimizer.step()
 
             # test loss
-            if test_iter is not None:
-                # eval model, it will stop dropout and batch normalization
-                model.eval()
-                test_pred = model(test_data)
-                test_loss = loss(test_pred, test_label).item()
-                mean_test_loss = ((count - 1) * mean_test_loss +
-                                  test_loss) / count
-                # function like the draw_epoch in train loss
-                if not draw_epoch:
-                    test_loss_list.append(test_loss)
-                else:
-                    if count == iter_num:
-                        test_loss_list.append(mean_test_loss)
-                # use this criterion to calculate test_score
-                if evaluate is not None:
-                    test_score = evaluate(test_data, test_label)
-                    mean_test_score = ((count - 1) * mean_test_score +
-                                       test_score) / count
+            with torch.no_grad():
+                if test_iter is not None:
+                    # eval model, it will stop dropout and batch normalization
+                    model.eval()
+                    test_pred = model(test_data)
+                    test_loss = loss(test_pred, test_label).item()
+                    mean_test_loss = ((count - 1) * mean_test_loss +
+                                      test_loss) / count
+                    # function like the draw_epoch in train loss
                     if not draw_epoch:
-                        test_score_list.append(test_score)
+                        test_loss_list.append(test_loss)
                     else:
                         if count == iter_num:
-                            test_score_list.append(mean_test_score)
-                model.train()
+                            test_loss_list.append(mean_test_loss)
+                    # use this criterion to calculate test_score
+                    if evaluate is not None:
+                        test_score = evaluate(test_data, test_label)
+                        mean_test_score = ((count - 1) * mean_test_score +
+                                           test_score) / count
+                        if not draw_epoch:
+                            test_score_list.append(test_score)
+                        else:
+                            if count == iter_num:
+                                test_score_list.append(mean_test_score)
+                    model.train()
 
             # update counter
             count += 1

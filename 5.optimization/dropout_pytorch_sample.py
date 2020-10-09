@@ -52,7 +52,7 @@ if __name__ == "__main__":
     params = {
         "model": model,
         "loss": loss,
-        "epoch_num": 3,
+        "epoch_num": 50,
         "data_num": len(train_mnist),
         "batch_size": 512,
         "optimizer": optimizer,
