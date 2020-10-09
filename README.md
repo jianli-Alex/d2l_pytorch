@@ -4,6 +4,7 @@
 1. Pytorch的基础用法
 	- 数据操作/各种常用函数/自动梯度
 	- Pytorch和numpy操作之间的比较/结果对比
+	- Pytorh的nn.Module/初始化/自定义/cuda
 2. Linear model
 	- 实现linear model的numpy版/进度条的实现（见sqdm）/小批量划分数据集等通用函数
 	- 实现linear model的正规方程解法
