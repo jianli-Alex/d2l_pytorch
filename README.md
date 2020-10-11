@@ -27,3 +27,6 @@
 	- 优化器自定义参数权重衰减率时不更新实验
 	- dropout的两种方式实现/为网络自定义添加dropout和pytorch实验
 	- GPU实验/分割通用训练函数为(experiment和pytorch版)，增加GPU的相关支持
+6. CNNs
+	- 卷积实验（自定义实现以及利用nn.Module实现）
+
