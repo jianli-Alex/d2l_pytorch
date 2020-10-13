@@ -29,4 +29,4 @@
 	- GPU实验/分割通用训练函数为(experiment和pytorch版)，增加GPU的相关支持
 6. CNNs
 	- 卷积实验（自定义实现以及利用nn.Module实现）
-
+	- 实现只用于epoch训练的通用函数train_epoch，加快训练速度
