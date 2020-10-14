@@ -19,6 +19,7 @@ class Conv2D(nn.Module):
     function: define convolution layer
     params kernel_size: the shape of convolution kernel (tuple)
     """
+
     def __init__(self, kernel_size):
         super(Conv2D, self).__init__()
         self.weight = nn.Parameter(torch.rand(kernel_size))
@@ -37,11 +38,11 @@ def conv2d(x, k):
     # get convolution kernel shape
     h, w = k.shape
     # define output shape
-    output = torch.zeros(x.shape[0]-h+1, x.shape[1]-w+1)
+    output = torch.zeros(x.shape[0] - h + 1, x.shape[1] - w + 1)
 
     for i in range(output.shape[0]):
         for j in range(output.shape[1]):
-            output[i, j] = (x[i:(i+h), j:(j+w)] * k).sum()
+            output[i, j] = (x[i:(i + h), j:(j + w)] * k).sum()
 
     return output
 
@@ -95,13 +96,13 @@ def conv2d_padding_stride(x, k, padding=0, stride=1):
             sh, sw = stride
 
         # output shape
-        output = torch.zeros(int((x.shape[0]-kh+ph+sh)//sh),
-                             int((x.shape[1]-kw+pw+sw)//sw))
+        output = torch.zeros((x.shape[0] - kh + 2 * ph + sh) // sh,
+                             (x.shape[1] - kw + 2 * pw + sw) // sw)
         # padding x
         x = torch.from_numpy(np.pad(x.numpy(), ((ph, ph), (pw, pw))))
         for i in range(output.shape[0]):
             for j in range(output.shape[1]):
-                output[i, j] = (x[(i*sh):(i*sh+kh), (i*sw):(i*sw+kw)] * k).sum()
+                output[i, j] = (x[(i * sh):(i * sh + kh), (j * sw):(j * sw + kw)] * k).sum()
         return output
 
 
@@ -136,7 +137,7 @@ def conv2d_multi_in_out(X, K, padding=0, stride=1):
     function: realize convolution calculate with multiply input and output channels
     params K: convolution kernel with multiply output channels (4 dimensions tensor)
     """
-    result = [conv2d_multi_in(X, k, padding, stride)for k in K]
+    result = [conv2d_multi_in(X, k, padding, stride) for k in K]
     return torch.stack(result)
 
 
@@ -146,11 +147,93 @@ def conv2d_multi_in_out_1x1(x, k):
     params x: input data with multiply channels (3 dimension)
     params K: convolution kernel with multiply output channels (4 dimensions tensor)
     """
+    # the element in high and width can be view as input data in fc layer
+    # the channels can be view as feature in fc layer
+    # so change x in the shape of fc layer
     x = x.view(3, -1)
+    # stack two channels x
     x = torch.stack((x, x))
+    # in order to bmm, change kernel in proper shape
     k = k.view(2, 1, 3)
     result = torch.bmm(k, x)
     return result.view(2, 3, 3)
+
+
+def pool2d(x, kernel_size, stride=None, mode="max"):
+    """
+    function: realize max and mean pool
+    params x: input data(2 dimension)
+    params kernel_size: integer or tuple, like pytorch, the stride shape is
+                        same as kernel_size
+    """
+    if isinstance(kernel_size, int):
+        kh = kw = kernel_size
+    else:
+        kh, kw = kernel_size
+
+    if stride == None:
+        sh, sw = kh, kw
+    else:
+        if isinstance(stride, int):
+            sh = sw = stride
+        else:
+            sh, sw = stride
+
+    y = torch.zeros(x.shape[0] // sh, x.shape[1] // sw)
+    for i in range(y.shape[0]):
+        for j in range(y.shape[1]):
+            if mode.lower() == "max":
+                y[i, j] = x[(i * sh):(i * sh + kh), (j * sw):(j * sw + kw)].max()
+            else:
+                y[i, j] = x[(i * sh):(i * sh + kh), (j * sw):(j * sw + kw)].mean()
+
+    return y
+
+
+def pool2d_padding_stride(x, kernel_size, padding=0, stride=None, mode="max"):
+    """
+    function: realize pool with padding and stride
+    """
+    if padding == 0:
+        return pool2d(x, kernel_size, stride, mode)
+    else:
+        if isinstance(padding, int):
+            ph = pw = padding
+        else:
+            ph, pw = padding
+
+    if isinstance(kernel_size, int):
+        kh = kw = kernel_size
+    else:
+        kh, kw = kernel_size
+
+    if stride == None:
+        sh, sw = kh, kw
+    else:
+        if isinstance(stride, int):
+            sh = sw = stride
+        else:
+            sh, sw = stride
+
+    y = torch.zeros((x.shape[0] - kh + 2 * ph + sh) // sh,
+                    (x.shape[1] - kw + 2 * pw + sw) // sw)
+    x = torch.from_numpy(np.pad(x.numpy(), ((ph, ph), (pw, pw))))
+    for i in range(y.shape[0]):
+        for j in range(y.shape[1]):
+            if mode.lower() == "max":
+                y[i, j] = x[(i * sh):(i * sh + kh), (j * sw):(j * sw + kw)].max()
+            else:
+                y[i, j] = x[(i * sh):(i * sh + kh), (j * sw):(j * sw + kw)].mean()
+    return y
+
+
+def pool2d_multi_in_out(x, kernel_size, padding=0, stride=None, mode="max"):
+    """
+    function: realize pooling with multiply channels
+    """
+    result = [pool2d_padding_stride(x[k], kernel_size[1:], padding, stride,
+                                    mode)for k in range(kernel_size[0])]
+    return torch.stack(result)
 
 
 if __name__ == "__main__":
@@ -207,4 +290,44 @@ if __name__ == "__main__":
     k = torch.arange(6).view(2, 3, 1, 1)
     print(conv2d_multi_in_out_1x1(x, k))
     print("conv_multi_in_out realize")
-    print(conv2d_multi_in_out(x, k))
+    print(conv2d_multi_in_out(x, k), "\n")
+
+    # test7: pooling with stride and no padding
+    print("test7: ")
+    x = torch.arange(9.).view(3, 3)
+    print("self-define")
+    print(pool2d(x, (2, 2)))
+    print(pool2d(x, (2, 2), mode="mean"))
+    print("MaxPool2d")
+    pool = nn.MaxPool2d(kernel_size=2)
+    print(pool(x.view((1, 1) + x.shape)))
+    print("AvgPool2d")
+    pool = nn.AvgPool2d(kernel_size=2)
+    print(pool(x.view((1, 1) + x.shape)), "\n")
+
+    # test 8: pooling with stride and padding
+    print("test8: ")
+    print("self-define")
+    x = torch.arange(16.).view(4, 4)
+    print(pool2d_padding_stride(x, kernel_size=3))
+    print(pool2d_padding_stride(x, kernel_size=(3, 3), padding=1, stride=2))
+    print(pool2d_padding_stride(x, kernel_size=(2, 4),
+                                padding=(1, 2), stride=(2, 3), mode="mean"))
+    print("MaxPool2d")
+    pool = nn.MaxPool2d(kernel_size=3)
+    print(pool(x.view((1, 1) + x.shape)))
+    pool = nn.MaxPool2d(kernel_size=3, padding=1, stride=2)
+    print(pool(x.view((1, 1) + x.shape)))
+    print("AvgPool2d")
+    pool = nn.AvgPool2d(kernel_size=(2, 4), padding=(1, 2), stride=(2, 3))
+    print(pool(x.view((1, 1) + x.shape)), "\n")
+
+    # test 9: pooling with multiply channels
+    print("test 9")
+    print("self-define")
+    x = torch.arange(16.).view(4, 4)
+    X = torch.stack((x, x + 1, x + 2))
+    print(pool2d_multi_in_out(X, (3, 2, 2), padding=1, stride=2))
+    print("MaxPool2d")
+    pool = nn.MaxPool2d(kernel_size=2, padding=1, stride=2)
+    print(pool(X))
