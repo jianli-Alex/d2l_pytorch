@@ -94,7 +94,7 @@ if __name__ == "__main__":
     params = {
         "model": model.predict_prob,
         "loss": model.entropy_loss,
-        "epoch_num": 100,
+        "epoch_num": 10,
         "lr": 0.1,
         "data_num": len(mnist_train),
         "batch_size": 512,

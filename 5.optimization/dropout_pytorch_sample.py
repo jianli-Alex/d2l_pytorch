@@ -9,6 +9,7 @@ import torch.nn as nn
 import torch.utils.data as Data
 sys.path.append("../d2l_func/")
 from model_train import train_pytorch
+from model_train import train_epoch
 from data_prepare import download_data_fashion_mnist, load_data_fashion_mnist
 from model_class import FlattenLayer
 
@@ -52,14 +53,18 @@ if __name__ == "__main__":
     params = {
         "model": model,
         "loss": loss,
-        "epoch_num": 50,
+        "epoch_num": 10,
         "data_num": len(train_mnist),
         "batch_size": 512,
         "optimizer": optimizer,
-        "test_iter": Data.DataLoader(test_mnist, len(test_mnist), shuffle=True),
-        "evaluate": model.score,
+        # "test_iter": Data.DataLoader(test_mnist, len(test_mnist), shuffle=True),
+        "test_iter": Data.DataLoader(test_mnist, batch_size=512, shuffle=True),
+        # "evaluate": model.score,
         "draw": True,
         "gpu": True,
+        # "sample_rate": 0.5,
+        # "draw_epoch": True,
+        # "draw_mean": True,
     }
 
     # load data
@@ -68,4 +73,5 @@ if __name__ == "__main__":
     params["train_iter"] = train_iter
 
     # training
-    train_pytorch(**params)
+    # train_pytorch(**params)
+    train_epoch(**params)
