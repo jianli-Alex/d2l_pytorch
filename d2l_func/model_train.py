@@ -256,7 +256,7 @@ def train_experiment(data_num, epoch_num, model, loss, train_iter, batch_size,
 def train_pytorch(data_num, epoch_num, model, loss, train_iter, batch_size,
                   optimizer=None, test_iter=None, evaluate=None, draw=False,
                   draw_epoch=False, save_fig=False, save_path="./img/",
-                  gpu=False, sample_rate=1):
+                  gpu=False, sample_rate=1, accum_step=1):
     """
     function: training in pytorch (only with nn.Module), when you choose (draw_epoch false),
               we draw with loss and score in each iteration. when you choose
@@ -280,6 +280,8 @@ def train_pytorch(data_num, epoch_num, model, loss, train_iter, batch_size,
     params sample_rate: the rate of sample (default 1), when draw in iteration, it will
                         show the dense figure. Thus, you can sample some point to draw.
                         the value of sample_rate is between 0-1
+    params accum_step: use in gradient accumulation, after the number of accum_step,
+                        it will be update the grad of parameters
     """
     # training bar
     process_bar = sqdm()
@@ -313,15 +315,15 @@ def train_pytorch(data_num, epoch_num, model, loss, train_iter, batch_size,
             # train
             # model.train()
             train_pred = model(x)
-            train_loss = loss(train_pred, y)
+            train_loss = loss(train_pred, y) / accum_step
             # calculate mean train loss
             mean_train_loss = (((count - 1) * mean_train_loss +
-                                train_loss) / count).item()
+                                accum_step * train_loss) / count).item()
             # when True, draw with epoch mean loss in train
             # because we train in a batch_size, so we want to show the loss in complete train
             # when False, draw with iteration loss in train (default False)
             if not draw_epoch:
-                train_loss_list.append(train_loss.item())
+                train_loss_list.append(accum_step * train_loss.item())
             else:
                 if count == iter_num:
                     train_loss_list.append(mean_train_loss)
@@ -338,12 +340,16 @@ def train_pytorch(data_num, epoch_num, model, loss, train_iter, batch_size,
                     if count == iter_num:
                         train_score_list.append(mean_train_score)
 
-            # clear grad
-            optimizer.zero_grad()
             # bp
             train_loss.backward()
-            # grad update
-            optimizer.step()
+            if count % accum_step == 0:
+                # grad update
+                optimizer.step()
+                # clear grad
+                optimizer.zero_grad()
+
+            if count == iter_num:
+                optimizer.zero_grad()
 
             # test loss
             with torch.no_grad():
@@ -455,7 +461,8 @@ def train_pytorch(data_num, epoch_num, model, loss, train_iter, batch_size,
 @cal_time
 def train_epoch(data_num, epoch_num, model, loss, train_iter, batch_size,
                 optimizer=None, test_iter=None, evaluate=None, draw=False,
-                draw_mean=False, save_fig=False, save_path="./img/", gpu=False):
+                draw_mean=False, save_fig=False, save_path="./img/",
+                accum_step=1, gpu=False):
     """
     function: training in pytorch (only with epoch), it will speed up in training in epoch
     params data_num: the number of sample in train set
@@ -470,6 +477,8 @@ def train_epoch(data_num, epoch_num, model, loss, train_iter, batch_size,
     params draw_epoch: draw with data in iteration or epoch
     params save_fig: save figure whether or not
     params save_path: the path of saving figure
+    params accum_step: use in gradient accumulation, after the number of accum_step,
+                        it will be update the grad of parameters
     params gpu: if want to use gpu and cuda is available, it will send tensor to gpu
     """
     # training bar
@@ -496,17 +505,17 @@ def train_epoch(data_num, epoch_num, model, loss, train_iter, batch_size,
             # train
             # model.train()
             train_pred = model(x)
-            train_loss = loss(train_pred, y)
+            train_loss = loss(train_pred, y) / accum_step
             # calculate mean train loss
             mean_train_loss = (((count - 1) * mean_train_loss +
-                                train_loss) / count).item()
+                                accum_step * train_loss) / count).item()
             # when draw_mean is True, we save the mean_train_loss in each iteration,
             # otherwise, we save the train_loss in the last iteration in each epoch
             if count == iter_num:
                 if draw_mean:
                     train_loss_list.append(mean_train_loss)
                 else:
-                    train_loss_list.append(train_loss)
+                    train_loss_list.append(accum_step * train_loss)
             # if parameter have criterion(evaluate), like accuracy/f1_score
             # use this criterion to calculate train_score
             if evaluate is not None:
@@ -520,12 +529,15 @@ def train_epoch(data_num, epoch_num, model, loss, train_iter, batch_size,
                     else:
                         train_score_list.append(train_score)
 
-            # clear grad
-            optimizer.zero_grad()
             # bp
             train_loss.backward()
-            # grad update
-            optimizer.step()
+            if (count % accum_step) == 0:
+                # grad update
+                optimizer.step()
+                # clear grad
+                optimizer.zero_grad()
+            if count == iter_num:
+                optimizer.zero_grad()
 
             # test loss
             with torch.no_grad():

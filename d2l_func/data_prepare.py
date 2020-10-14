@@ -24,7 +24,7 @@ def data_iter(batch_size, X, y):
         yield X[i:up_index], y[i:up_index]
 
 
-def download_data_fashion_mnist(download_path="../data"):
+def download_data_fashion_mnist(download_path="../data", resize=None):
     """
     function: download fashion mnist dataset
     params data_path: download path needed to define. Notably, you don't
@@ -32,19 +32,25 @@ def download_data_fashion_mnist(download_path="../data"):
                     the dataset exist in the download path, it will not
                     download again.
     """
+    trans = []
+    # 'Resize' can be used to change the resolution of figure
+    if resize:
+        trans.append(transforms.Resize(size=resize))
+    trans.append(transforms.ToTensor())
+    # use Compose to combine 'ToTensor' and 'Resize'
+    transform = transforms.Compose(trans)
     mnist_train = torchvision.datasets.FashionMNIST(root=download_path, train=True,
-                                                    transform=transforms.ToTensor(),
-                                                    download=True)
+                                                    download=True, transform=transform)
     mnist_test = torchvision.datasets.FashionMNIST(root=download_path, train=False,
-                                                   transform=transforms.ToTensor(),
-                                                   download=True)
+                                                   download=True, transform=transform)
     return mnist_train, mnist_test
 
 
-def load_data_fashion_mnist(batch_size, num_workers=4, download_path="../data"):
+def load_data_fashion_mnist(batch_size, num_workers=4,
+                            download_path="../data", resize=None):
     """use DataLoader to load fashion mnist"""
     # load fashion mnist dataset
-    mnist_train, mnist_test = download_data_fashion_mnist(download_path)
+    mnist_train, mnist_test = download_data_fashion_mnist(download_path, resize)
 
     # set the number of process
     if sys.platform.startswith("win"):
