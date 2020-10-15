@@ -30,5 +30,5 @@
 6. CNNs
 	- 卷积实验（自定义实现以及利用nn.Module实现）
 	- 实现只用于epoch训练的通用函数train_epoch，加快训练速度, 对train_pytorch和train_epoch增加梯度累加的功能
-	- 实现LeNet5/AlexNet/VGG11/VGG16
+	- 实现LeNet5/AlexNet/VGG11/VGG16/NIN
 	- 实现py文件代码对比函数(compare_file)
