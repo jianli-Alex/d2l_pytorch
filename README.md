@@ -17,6 +17,7 @@
 	- 实现通用的pytorch训练函数
 4. perceptron and multiple perceptron
 	- 实现感知机的numpy版/one vs rest/one vs one策略的多分类情况
+	- 使用numpy手动实现反馈网络和多层感知机
 	- pytorch版的mlp从零实现和简单实现
 	- 实现各种softmax/tanh/relu等激活函数
 	- 为通用训练函数(train_pytorch)添加画图功能，测试各种情况
