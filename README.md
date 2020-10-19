@@ -1,5 +1,5 @@
 ## d2l_pytorch
-动手学深度学习Pytorch版的个人笔记
+动手学深度学习Pytorch版的个人实现
 
 1. Pytorch的基础用法
 	- 数据操作/各种常用函数/自动梯度
@@ -33,3 +33,4 @@
 	- 实现只用于epoch训练的通用函数train_epoch，加快训练速度, 对train_pytorch和train_epoch增加梯度累加的功能
 	- 实现LeNet5/AlexNet/VGG11/VGG16/NIN
 	- 实现py文件代码对比函数(compare_file)
+	- 实验局部响应归一化(目前基本不用)
