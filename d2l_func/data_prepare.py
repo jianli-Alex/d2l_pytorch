@@ -47,7 +47,7 @@ def download_data_fashion_mnist(download_path="../data", resize=None):
 
 
 def load_data_fashion_mnist(batch_size, num_workers=4,
-                            download_path="../data", resize=None):
+                            download_path="../data", resize=None, **kwargs):
     """use DataLoader to load fashion mnist"""
     # load fashion mnist dataset
     mnist_train, mnist_test = download_data_fashion_mnist(download_path, resize)
@@ -59,8 +59,8 @@ def load_data_fashion_mnist(batch_size, num_workers=4,
         num_workers = num_workers
 
     train_iter = Data.DataLoader(mnist_train, batch_size=batch_size,
-                                 num_workers=num_workers, shuffle=True)
+                                 num_workers=num_workers, shuffle=True, **kwargs)
     test_iter = Data.DataLoader(mnist_test, batch_size=batch_size,
-                                num_workers=num_workers, shuffle=True)
+                                num_workers=num_workers, shuffle=True, **kwargs)
     return train_iter, test_iter
 
