@@ -444,9 +444,10 @@ def train_pytorch(data_num, epoch_num, model, loss, train_iter, batch_size,
             legend_labels = ["train_loss", "test_loss"]
             legend_loc = [0.595, 0.82]
         else:
+            ax2.set_ylim([0, 1.18])
             legend_labels = ["train_loss", "test_loss",
                              "train_score", "test_score"]
-            legend_loc = [0.58, 0.78]
+            legend_loc = [0.58, 0.77]
         fig.legend(labels=legend_labels, ncol=2, loc=legend_loc)
 
         if save_fig:
@@ -623,9 +624,10 @@ def train_epoch(data_num, epoch_num, model, loss, train_iter, batch_size,
             legend_labels = ["train_loss", "test_loss"]
             legend_loc = [0.595, 0.82]
         else:
+            ax2.set_ylim([0, 1.18])
             legend_labels = ["train_loss", "test_loss",
                              "train_score", "test_score"]
-            legend_loc = [0.58, 0.78]
+            legend_loc = [0.58, 0.77]
         fig.legend(labels=legend_labels, ncol=2, loc=legend_loc)
 
         if save_fig:
