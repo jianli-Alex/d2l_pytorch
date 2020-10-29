@@ -30,6 +30,7 @@
 	- 卷积实验（自定义实现以及利用nn.Module实现）
 	- 实现LeNet5/AlexNet/VGG11/VGG16/NIN/GoogleNet
 	- 实验局部响应归一化(目前基本不用)
+	- 自定义实现BN和Pytorch简洁实现
 7. RNNs
 	- RNN的相关实验
 8. d2_func
