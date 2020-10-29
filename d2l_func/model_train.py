@@ -238,9 +238,10 @@ def train_experiment(data_num, epoch_num, model, loss, train_iter, batch_size,
             legend_labels = ["train_loss", "test_loss"]
             legend_loc = [0.595, 0.82]
         else:
+            ax2.set_ylim([0, 1.18])
             legend_labels = ["train_loss", "test_loss",
                              "train_score", "test_score"]
-            legend_loc = [0.58, 0.78]
+            legend_loc = [0.58, 0.77]
         fig.legend(labels=legend_labels, ncol=2, loc=legend_loc)
 
         if save_fig:
@@ -313,7 +314,7 @@ def train_pytorch(data_num, epoch_num, model, loss, train_iter, batch_size,
                 x = x.cuda()
                 y = y.cuda()
             # train
-            # model.train()
+            model.train()
             train_pred = model(x)
             train_loss = loss(train_pred, y) / accum_step
             # calculate mean train loss
@@ -329,6 +330,7 @@ def train_pytorch(data_num, epoch_num, model, loss, train_iter, batch_size,
                     train_loss_list.append(mean_train_loss)
             # if parameter have criterion(evaluate), like accuracy/f1_score
             # use this criterion to calculate train_score
+            model.eval()
             if evaluate is not None:
                 train_score = evaluate(x, y)
                 mean_train_score = ((count - 1) * mean_train_score +
@@ -339,6 +341,7 @@ def train_pytorch(data_num, epoch_num, model, loss, train_iter, batch_size,
                 else:
                     if count == iter_num:
                         train_score_list.append(mean_train_score)
+            model.train()
 
             # bp
             train_loss.backward()
@@ -504,7 +507,7 @@ def train_epoch(data_num, epoch_num, model, loss, train_iter, batch_size,
                 x = x.cuda()
                 y = y.cuda()
             # train
-            # model.train()
+            model.train()
             train_pred = model(x)
             train_loss = loss(train_pred, y) / accum_step
             # calculate mean train loss
@@ -519,6 +522,7 @@ def train_epoch(data_num, epoch_num, model, loss, train_iter, batch_size,
                     train_loss_list.append(accum_step * train_loss)
             # if parameter have criterion(evaluate), like accuracy/f1_score
             # use this criterion to calculate train_score
+            model.eval()
             if evaluate is not None:
                 train_score = evaluate(x, y)
                 mean_train_score = ((count - 1) * mean_train_score +
@@ -529,6 +533,7 @@ def train_epoch(data_num, epoch_num, model, loss, train_iter, batch_size,
                         train_score_list.append(mean_train_score)
                     else:
                         train_score_list.append(train_score)
+            model.train()
 
             # bp
             train_loss.backward()
