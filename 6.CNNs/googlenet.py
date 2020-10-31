@@ -79,7 +79,7 @@ class GoogleNet(nn.Module):
             nn.Conv2d(in_channels=1, out_channels=64, kernel_size=7, stride=2, padding=3),
             nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=3, stride=2)
+            nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         )
         self.block2 = nn.Sequential(
             nn.Conv2d(in_channels=64, out_channels=64, kernel_size=1),
@@ -87,12 +87,12 @@ class GoogleNet(nn.Module):
             nn.Conv2d(in_channels=64, out_channels=192, kernel_size=3, padding=1, stride=1),
             nn.BatchNorm2d(192),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=3, stride=2)
+            nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         )
         self.block3 = nn.Sequential(
             Inception(192, 64, (96, 128), (16, 32), 32),
             Inception(256, 128, (128, 192), (32, 96), 64),
-            nn.MaxPool2d(kernel_size=3, stride=2)
+            nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         )
         self.block4 = nn.Sequential(
             Inception(480, 192, (96, 208), (16, 48), 64),
@@ -137,7 +137,7 @@ if __name__ == "__main__":
     mnist_train, mnist_test = download_data_fashion_mnist()
 
     params = {
-        "epoch_num": 5,
+        "epoch_num": 2,
         "model": model,
         "data_num": len(mnist_train),
         "loss": loss,
