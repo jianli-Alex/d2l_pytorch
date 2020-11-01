@@ -32,6 +32,7 @@
 	- 实验局部响应归一化(目前基本不用)
 	- BN的自定义实现和Pytorch简洁实现
 7. RNNs
+	- 实现随机采样和相邻采样
 	- RNN的相关实验
 8. d2_func
 	- 通用训练函数(train_experiment/train_pytorch/train_epoch)，train_experiment用于个人的实验（包含非pytorch实现如手动实现优化器），train_pytorch只包含pytorch的实现（兼容iteration和epoch的绘图，但是测试的时候每一iteration都会测试，如果传进了需要测试的参数），train_epoch只用于epoch的训练（绘图时只绘制epoch，因此1个epoch只测试一次，训练速度加快）
