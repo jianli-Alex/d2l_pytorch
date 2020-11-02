@@ -77,13 +77,16 @@ def zip_data_jay_song():
     return corpus_char.replace("\n", " ").replace("\r", " ")
 
 
-def load_data_jay_song(corpus_char):
+def load_data_jay_song(sort=True):
     """
     function: function: load the data of jay song which use in RNN
     params corpus_char: the complete char of corpus
     """
+    corpus_char = zip_data_jay_song()
     # idx to char
     vocab_set = list(set(corpus_char))
+    if sort:
+        vocab_set.sort()
     # char to idx
     char_to_idx = {char: i for i, char in enumerate(vocab_set)}
     # vocab size
@@ -101,49 +104,43 @@ def data_iter_random(corpus_index, batch_size, num_steps):
     params batch_size: the size of each batch
     params num_steps: the number of time steps in a network
     """
-
-    """
-    because the index of y is equal to the index of x + 1, so when we calculate 
-    the number of example, we should use len(corpus_index) - 1, "example_num" 
-    stand fot the number of example with the num_steps.
-    """
-    example_num = (len(corpus_index) - 1) // batch_size
-    sample_start = (len(corpus_index) - 1) % batch_size
-    if sample_start != 0:
-        sample_start = np.random.randint(sample_start)
-    example_index = np.arange(sample_start, len(corpus_index),
-                              num_steps)[:example_num]
+    # because the index of y is equal to the index of x + 1, so when we calucate the number of example,
+    # we should use len(corpus_index) - 1, "example_num" stand fot the number of example with the num_steps.
+    example_num = (len(corpus_index) - 1) // num_steps
+    sample_start = (len(corpus_index) - 1) % num_steps
+    # the example is the combination of several char, so it must with num_steps. when the example is not the
+    # factor of batch_size, we only retain the complete example
+    sample_start = np.random.randint(sample_start + 1)
+    example_index = np.arange(sample_start, len(corpus_index), num_steps)[:example_num]
     np.random.shuffle(example_index)
 
     # extract batch example
     for idx in np.arange(0, len(example_index), batch_size):
-        batch_example = example_index[idx:(idx + batch_size)]
+        batch_example = example_index[idx:(idx+batch_size)]
         # extract example in each batch
-        x = [corpus_index[pos:(pos + num_steps)] for pos in batch_example]
-        y = [corpus_index[(pos + 1):(pos + 1 + num_steps)] for pos in batch_example]
+        x = [corpus_index[pos:(pos+num_steps)] for pos in batch_example]
+        y = [corpus_index[(pos+1):(pos+1+num_steps)] for pos in batch_example]
         yield torch.tensor(x, dtype=torch.float32), torch.tensor(y, dtype=torch.float32)
 
 
 def data_iter_consecutive(corpus_index, batch_size, num_step):
     """realize consecutive sample, the params is same as random sample"""
-    example_num = (len(corpus_index) - 1) // num_step
-    # avoid the situation of (len(corpus_index) - 1) % num_step == 0
-    try:
-        sample_start = np.random.randint((len(corpus_index) - 1) % num_step)
-    except:
-        sample_start = 0
-    # extract consecutive index which will sample, change shape with batch_size
-    corpus_index = torch.tensor(corpus_index[sample_start:sample_start + example_num * num_step],
-                                dtype=torch.float32).view(batch_size, -1)
+    # change to tensor in order to the use "view"
+    corpus_index = torch.tensor(corpus_index, dtype=torch.float32)
+    # the length of batch if only split in a batch with batch_size
+    batch_len = len(corpus_index) // batch_size
+    # sample batch
+    batch_start = np.random.randint(len(corpus_index) % batch_size + 1)
+    corpus_index = corpus_index[batch_start: batch_start + batch_size * batch_len].view(batch_size, -1)
 
-    batch_num = corpus_index.shape[1] // num_step
-    # the reason same as sample_start
-    try:
-        batch_start = np.random.randint(corpus_index.shape[1] % num_step)
-    except:
-        batch_start = 0
+    # sample example
+    sample_start = np.random.randint((batch_len - 1) % num_step + 1)
+    # the max num generate with batch_size
+    batch_num = (batch_len - 1) // num_step
+
     # yield consecutive sample with num_step
-    for i in range(batch_start, batch_start + batch_num * num_step, num_step):
-        x = corpus_index[:, i:i + num_step]
-        y = x + 1
+    for i in range(batch_num):
+        i = sample_start + i * num_step
+        x = corpus_index[:, i:(i + num_step)]
+        y = corpus_index[:, (i + 1):(i + 1 + num_step)]
         yield x, y
