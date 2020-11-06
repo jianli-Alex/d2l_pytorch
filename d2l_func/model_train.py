@@ -11,9 +11,10 @@ from datetime import datetime
 
 sys.path.append("../d2l_func/")
 from sqdm import sqdm
-from optim import sgd
+from optim import sgd, grad_clipping
 from draw import set_fig_display
 from decorate import cal_time
+from data_prepare import to_onehot
 
 
 def loss_error_sample(list_length, sample_rate):
@@ -642,3 +643,177 @@ def train_epoch(data_num, epoch_num, model, loss, train_iter, batch_size,
             plt.savefig(save_path + fig_name, dpi=200)
 
         plt.show()
+
+
+# training
+def train_rnn(epoch_num, batch_num, rnn, loss, init_hidden_state, get_params, data_iter, corpus_index,
+              num_step, hidden_num, lr, batch_size, char_to_idx, vocab_set, vocab_size, prefixs,
+              predict_rnn, pred_num, clipping_theta=1e-2, sample_random=True, device="cuda"):
+    """
+    function: training and predict in rnn
+    params epoch_num: the number of epoch
+    params batch_num: the number of batch in a epoch
+    params rnn: the rnn model
+    params loss: such as nn.CrossEntropyLoss()
+    params init_hidden_state: define the state of hidden layer
+    params get_params: get the weight and bias in rnn
+    params data_iter: data_iter_random/data_iter_consecutive
+    params corpus_index: the index of corpus
+    params num_step: the number of time step in rnn
+    params hidden_num: the number of unit in hidden layer in rnn
+    params lr: the learning rate
+    params batch_size: the size of a batch
+    params char_to_idx: char index which convert Chinese to idx
+    params vocab_set: the list of word in corpus
+    params vocab_size: the length of vocab_set
+    params prefixs: the list include input when you want to predict, such as ["分开", "不分开"]
+    params pred_num: the number you want to predict
+    params clipping_heta: the max value of the norm of grad
+    params sample_random: if sample in random, use data_iter_random. otherwise, use data_iter_consecutive
+    params device: "cpu"/"cuda"
+    """
+    # training bar
+    process_bar = sqdm()
+    # init
+    l_sum, n_class = 0, 0
+    # get params in rnn
+    params = get_params(vocab_size, hidden_num, vocab_size, device)
+
+    for epoch in range(epoch_num):
+        # sample in consecutive
+        if not sample_random:
+            h_state = init_hidden_state(batch_size, hidden_num, device)
+        print(f"Epoch [{epoch + 1}/{epoch_num}]")
+        for x, y in data_iter(corpus_index, batch_size, num_step, device):
+            # x shape: (num_step, batch_size, vocab_size)
+            x = to_onehot(x, vocab_size, device)
+            # if sample with random, init h_state in each batch
+            if sample_random:
+                h_state = init_hidden_state(x.shape[1], hidden_num, device)
+            else:
+                # split h_state from cal graph, when sample_consecusive
+                h_state.detach_()
+
+            # rnn, the shape of outputs is (num_step, batch_size, vocab_size)
+            outputs, h_state = rnn(x, h_state, params)
+            # In order to calculate loss, change outputs shape and y shape
+            outputs = outputs.view(-1, outputs.shape[-1])
+            y = y.transpose(0, 1).contiguous().view(-1)
+            # calculate loss, y --> long type
+            l = loss(outputs, y.long())
+
+            # update params
+            if params[0].grad is not None:
+                for param in params:
+                    param.grad.data.zero_()
+
+            # backward
+            l.backward()
+            # grad clip
+            grad_clipping(params, clipping_theta, device)
+            # sgd
+            sgd(params, lr)
+
+            # loss_sum
+            l_sum += l.item() * y.shape[0]
+            n_class += y.shape[0]
+
+            # perplexity
+            try:
+                perplexity = np.exp(l_sum / n_class)
+            except OverflowError:
+                perplexity = float("inf")
+
+            # training bar
+            process_bar.show_process(batch_num, 1, train_loss=perplexity)
+
+        # predict
+        print("\n")
+        for prefix in prefixs:
+            print(f"prefix-{prefix}: ", predict_rnn(prefix, pred_num, rnn, init_hidden_state, hidden_num,
+                                                    params, char_to_idx, vocab_set, vocab_size, device))
+        print("\n")
+
+
+# training
+def train_rnn_pytorch(epoch_num, batch_num, model, loss, optimizer, data_iter, corpus_index, num_step,
+                      batch_size, char_to_idx, vocab_set, vocab_size, prefixs, pred_num, predict_rnn_pytorch,
+                      clipping_theta=1e-2, random_sample=True, device="cuda"):
+    """
+    function: training and predict in rnn
+    params epoch_num: the number of epoch
+    params batch_num: the number of batch in a epoch
+    params model: the rnn model
+    params loss: such as nn.CrossEntropyLoss()
+    params optimizer: optimizer in pytorch
+    params data_iter: data_iter_random/data_iter_consecutive
+    params corpus_index: the index of corpus
+    params num_step: the number of time step in rnn
+    params batch_size: the size of a batch
+    params char_to_idx: char index which convert Chinese to idx
+    params vocab_set: the list of word in corpus
+    params vocab_size: the length of vocab_set
+    params prefixs: the list include input when you want to predict, such as ["分开", "不分开"]
+    params pred_num: the number you want to predict
+    params clipping_heta: the max value of the norm of grad
+    params random_sample: if sample in random, use data_iter_random. otherwise, use data_iter_consecutive
+    params device: "cpu"/"cuda"
+    """
+    # training bar
+    process_bar = sqdm()
+    # init
+    l_sum, n_class = 0, 0
+
+    for epoch in range(epoch_num):
+        # sample in consecutive
+        h_state = None
+        print(f"Epoch [{epoch + 1}/{epoch_num}]")
+        for x, y in data_iter(corpus_index, batch_size, num_step, device):
+            x = to_onehot(x, vocab_size, device)
+            # if sample with random, init h_state in each batch
+            if random_sample:
+                h_state = None
+            else:
+                # split h_state from cal graph, when sample_consecusive
+                if h_state is not None:
+                    if isinstance(h_state, tuple):  # lstm, state: (h, c)
+                        h_state = (h_state[0].deatch(), h_state[1].deatch())
+                    else:
+                        h_state.detach_()
+
+            # rnn, the shape of outputs is (num_step, batch_size, vocab_size)
+            outputs, h_state = model(x, h_state)
+            # In order to calculate loss, change outputs shape and y shape
+            outputs = outputs.view(-1, outputs.shape[-1])
+            y = y.transpose(0, 1).contiguous().view(-1)
+            # calculate loss, y --> long type
+            l = loss(outputs, y.long())
+
+            # clear grad
+            optimizer.zero_grad()
+            # grad backward
+            l.backward()
+            # grad clip
+            grad_clipping(model.parameters(), clipping_theta, device)
+            # update grad
+            optimizer.step()
+
+            # loss_sum
+            l_sum += l.item() * y.shape[0]
+            n_class += y.shape[0]
+
+            # calculate preplexity
+            try:
+                preplexity = np.exp(l_sum / n_class)
+            except OverflowError:
+                preplexity = float('inf')
+
+            # training bar
+            process_bar.show_process(batch_num, 1, train_loss=preplexity)
+
+        # predict
+        print("\n")
+        for prefix in prefixs:
+            print(f"prefix-{prefix}: ", predict_rnn_pytorch(prefix, pred_num, model, char_to_idx,
+                                                            vocab_set, vocab_size, device))
+        print("\n")

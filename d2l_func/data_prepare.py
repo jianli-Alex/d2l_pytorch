@@ -8,6 +8,7 @@ import numpy as np
 import torchvision
 import torchvision.transforms as transforms
 import torch.utils.data as Data
+from functools import reduce
 
 
 def data_iter(batch_size, X, y):
@@ -97,7 +98,7 @@ def load_data_jay_song(sort=True):
     return corpus_index, char_to_idx, vocab_set, vocab_size
 
 
-def data_iter_random(corpus_index, batch_size, num_steps):
+def data_iter_random(corpus_index, batch_size, num_steps, device):
     """
     function: realize random sample
     params corpus_index: the idx with corpus --> list
@@ -120,13 +121,13 @@ def data_iter_random(corpus_index, batch_size, num_steps):
         # extract example in each batch
         x = [corpus_index[pos:(pos+num_steps)] for pos in batch_example]
         y = [corpus_index[(pos+1):(pos+1+num_steps)] for pos in batch_example]
-        yield torch.tensor(x, dtype=torch.float32), torch.tensor(y, dtype=torch.float32)
+        yield torch.tensor(x, dtype=torch.float32, device=device), torch.tensor(y, dtype=torch.float32, device=device)
 
 
-def data_iter_consecutive(corpus_index, batch_size, num_step):
+def data_iter_consecutive(corpus_index, batch_size, num_step, device):
     """realize consecutive sample, the params is same as random sample"""
     # change to tensor in order to the use "view"
-    corpus_index = torch.tensor(corpus_index, dtype=torch.float32)
+    corpus_index = torch.tensor(corpus_index, dtype=torch.float32, device=device)
     # the length of batch if only split in a batch with batch_size
     batch_len = len(corpus_index) // batch_size
     # sample batch
@@ -144,3 +145,33 @@ def data_iter_consecutive(corpus_index, batch_size, num_step):
         x = corpus_index[:, i:(i + num_step)]
         y = corpus_index[:, (i + 1):(i + 1 + num_step)]
         yield x, y
+
+
+def onehot(corpus_index, vocab_size, device):
+    """
+    function: change idx to one-hot vector depend on vocab_size
+    params corpus_index: the batch index of corpus in one time_step
+    params vocab_size: the length of vocab
+    params device: cpu or cuda
+    """
+    # the "scatter_" function need the type of index --> int, the index shape is (batch_size, )
+    corpus_index = corpus_index.long().to(device)
+    # generate inputs like the corpus_index shape
+    inputs = torch.zeros(corpus_index.shape[0], vocab_size, device=device)
+    # one-hot, scatter_(dim, index, src)
+    inputs.scatter_(1, corpus_index.view(-1, 1), 1)
+    return inputs.unsqueeze(0)
+
+
+def to_onehot(corpus_index, vocab_size, device):
+    """
+    function: change idx with many time step to one hot vector
+    params corpus_index: the batch index of corpus with many time_step
+    params vocab_size: the length of vocab
+    params device: cpu or cuda
+    """
+    # corpus_index shape: (batch_size, num_step)
+    # return shape---> (num_step, batch_size, vocab_size)
+    return reduce(lambda x, y: torch.cat((x, y)),
+                  [onehot(corpus_index[:, i], vocab_size, device) for i in range(corpus_index.shape[1])])
+

@@ -33,7 +33,7 @@
 	- BN的自定义实现和Pytorch简洁实现
 7. RNNs
 	- 实现随机采样和相邻采样
-	- RNN的相关实验
+	- RNN的从零实现和pytorch实现
 8. d2_func
 	- 通用训练函数(train_experiment/train_pytorch/train_epoch)，train_experiment用于个人的实验（包含非pytorch实现如手动实现优化器），train_pytorch只包含pytorch的实现（兼容iteration和epoch的绘图，但是测试的时候每一iteration都会测试，如果传进了需要测试的参数），train_epoch只用于epoch的训练（绘图时只绘制epoch，因此1个epoch只测试一次，训练速度加快）
 	- train_pytorch和tran_epoch都增加了梯度累加的支持，GPU支持，train_experiment没有添加，这种训练模式支持绘图（train_pytorch和train_experiment支持iteration/epoch绘图，且train_pytorch支持抽样绘图，train_epoch仅支持epoch绘图，但可绘制训练集的每个batch在epoch的平均loss/score或者最后一个iteraction的loss/score）
@@ -41,3 +41,4 @@
 	- 进度条实现(sqdm)，用于监测训练过程中的loss和score的变化，已经集成到model_train.py的各种训练模式中
 	- 代码比较函数(compare_file)，用于比较两个py文件的代码异同（以网页的方式）
 	- 目录树的自实现（tree.py），可用于以目录树的形式打印任意目录下的文件
+	- 随机种子的设置/one-hot的表示方法/rnn的训练函数/梯度剪裁
