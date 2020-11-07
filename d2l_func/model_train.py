@@ -648,7 +648,7 @@ def train_epoch(data_num, epoch_num, model, loss, train_iter, batch_size,
 # training
 def train_rnn(epoch_num, batch_num, rnn, loss, init_hidden_state, get_params, data_iter, corpus_index,
               num_step, hidden_num, lr, batch_size, char_to_idx, vocab_set, vocab_size, prefixs,
-              predict_rnn, pred_num, clipping_theta=1e-2, sample_random=True, device="cuda"):
+              predict_rnn, pred_num, clipping_theta=1e-2, random_sample=True, device="cuda"):
     """
     function: training and predict in rnn
     params epoch_num: the number of epoch
@@ -669,7 +669,7 @@ def train_rnn(epoch_num, batch_num, rnn, loss, init_hidden_state, get_params, da
     params prefixs: the list include input when you want to predict, such as ["分开", "不分开"]
     params pred_num: the number you want to predict
     params clipping_heta: the max value of the norm of grad
-    params sample_random: if sample in random, use data_iter_random. otherwise, use data_iter_consecutive
+    params random_sample: if sample in random, use data_iter_random. otherwise, use data_iter_consecutive
     params device: "cpu"/"cuda"
     """
     # training bar
@@ -681,18 +681,22 @@ def train_rnn(epoch_num, batch_num, rnn, loss, init_hidden_state, get_params, da
 
     for epoch in range(epoch_num):
         # sample in consecutive
-        if not sample_random:
+        if not random_sample:
             h_state = init_hidden_state(batch_size, hidden_num, device)
         print(f"Epoch [{epoch + 1}/{epoch_num}]")
         for x, y in data_iter(corpus_index, batch_size, num_step, device):
             # x shape: (num_step, batch_size, vocab_size)
             x = to_onehot(x, vocab_size, device)
             # if sample with random, init h_state in each batch
-            if sample_random:
+            if random_sample:
                 h_state = init_hidden_state(x.shape[1], hidden_num, device)
             else:
-                # split h_state from cal graph, when sample_consecusive
-                h_state.detach_()
+                if h_state is not None:
+                    if isinstance(h_state, tuple):
+                        h_state = (h_state[0].detach_(), h_state[1].detach_())
+                    else:
+                        # split h_state from cal graph, when sample_consecusive
+                        h_state.detach_()
 
             # rnn, the shape of outputs is (num_step, batch_size, vocab_size)
             outputs, h_state = rnn(x, h_state, params)
@@ -761,12 +765,13 @@ def train_rnn_pytorch(epoch_num, batch_num, model, loss, optimizer, data_iter, c
     """
     # training bar
     process_bar = sqdm()
-    # init
+    # init(use in calculate perplexity)
     l_sum, n_class = 0, 0
 
     for epoch in range(epoch_num):
         # sample in consecutive
-        h_state = None
+        if not random_sample:
+            h_state = None
         print(f"Epoch [{epoch + 1}/{epoch_num}]")
         for x, y in data_iter(corpus_index, batch_size, num_step, device):
             x = to_onehot(x, vocab_size, device)
@@ -774,10 +779,10 @@ def train_rnn_pytorch(epoch_num, batch_num, model, loss, optimizer, data_iter, c
             if random_sample:
                 h_state = None
             else:
-                # split h_state from cal graph, when sample_consecusive
+                # split h_state from cal graph, when sample_consecutive
                 if h_state is not None:
                     if isinstance(h_state, tuple):  # lstm, state: (h, c)
-                        h_state = (h_state[0].deatch(), h_state[1].deatch())
+                        h_state = (h_state[0].detach(), h_state[1].detach())
                     else:
                         h_state.detach_()
 
@@ -793,7 +798,7 @@ def train_rnn_pytorch(epoch_num, batch_num, model, loss, optimizer, data_iter, c
             optimizer.zero_grad()
             # grad backward
             l.backward()
-            # grad clip
+            # grad clipping
             grad_clipping(model.parameters(), clipping_theta, device)
             # update grad
             optimizer.step()
@@ -802,14 +807,14 @@ def train_rnn_pytorch(epoch_num, batch_num, model, loss, optimizer, data_iter, c
             l_sum += l.item() * y.shape[0]
             n_class += y.shape[0]
 
-            # calculate preplexity
+            # calculate perplexity
             try:
-                preplexity = np.exp(l_sum / n_class)
+                perplexity = np.exp(l_sum / n_class)
             except OverflowError:
-                preplexity = float('inf')
+                perplexity = float('inf')
 
             # training bar
-            process_bar.show_process(batch_num, 1, train_loss=preplexity)
+            process_bar.show_process(batch_num, 1, train_loss=perplexity)
 
         # predict
         print("\n")
