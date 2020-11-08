@@ -26,6 +26,7 @@
 	- 对权重衰减是否除以batch_size的对比实验见"2. linear model"中的"linear_bridge"相关实验
 	- 优化器自定义参数权重衰减率时不更新实验
 	- dropout的两种方式实现/为网络自定义添加dropout和pytorch实验
+	- SGD/Adagrad/RMSProp/AdaDelta/Adam自定义实现和pytorch实现
 6. CNNs
 	- 卷积实验（自定义实现以及利用nn.Module实现）
 	- 实现LeNet5/AlexNet/VGG11/VGG16/NIN/GoogleNet/ResetNet/DenseNet
