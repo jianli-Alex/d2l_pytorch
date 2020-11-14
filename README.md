@@ -36,6 +36,7 @@
 	- 实现随机采样和相邻采样
 	- RNN的从零实现和pytorch实现
 	- LSTM/GRU的从零实现和pytorch实现
+	- 深度RNN/双向RNN自定义实现和pytorch实现
 8. NLP
 	- word2vec的自定义实现（二次采样/负采样/skip-gram）和简单实现（使用gensim）
 9. d2_func
